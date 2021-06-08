@@ -19,12 +19,12 @@ const monthNames = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep
 
 // Password hash function
 async function hash(pwd) {
-	const salt = await bcrypt.genSalt(10);
-	const hashedPassword = await bcrypt.hash(pwd, salt);
-	return hashedPassword;
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(pwd, salt);
+    return hashedPassword;
 }
 
-function generateHardwareId(id, hardware_key){
+function generateHardwareId(id, hardware_key) {
     // you can change this however you want (before you have any users)
     return md5(id.substr(1) + hardware_key.substr(2));
 }
@@ -32,43 +32,43 @@ function generateHardwareId(id, hardware_key){
 
 // Register user
 router.post('/user/register', async (req, res) => {
-	// input validation
-	const { error } = userRegisterValidation(req.body);
-	if (error) return res.json({error: error});
+    // input validation
+    const { error } = userRegisterValidation(req.body);
+    if (error) return res.json({ error: error });
 
-	// checking if there are accounts with this email
-	const emailExists = await User.findOne({ email: req.body.email });
-	if (emailExists) return res.json({ error: 'Email already exists' });
+    // checking if there are accounts with this email
+    const emailExists = await User.findOne({ email: req.body.email });
+    if (emailExists) return res.json({ error: 'Email already exists' });
 
-	// hash the password
-	hashedPassword = await hash(req.body.password);
+    // hash the password
+    hashedPassword = await hash(req.body.password);
 
-	// creating a new user
-	const user = new User({
-		name: req.body.name,
-		email: req.body.email,
-		password: hashedPassword,
-	});
-	try {
-		const savedUser = await user.save();
-		res.json({ _id: savedUser._id });
-	} catch (err) {
+    // creating a new user
+    const user = new User({
+        name: req.body.name,
+        email: req.body.email,
+        password: hashedPassword,
+    });
+    try {
+        const savedUser = await user.save();
+        res.json({ _id: savedUser._id });
+    } catch (err) {
         console.log(err);
-		res.json({ error: err });
-	}
+        res.json({ error: err });
+    }
 });
 
 
 // Activate software
 router.post('/activate', async (req, res) => {
-	// input validation
-	const { error } = activateValidation(req.body);
-	if (error) return res.status(400).send(error);
+    // input validation
+    const { error } = activateValidation(req.body);
+    if (error) return res.status(400).send(error);
     var user = await User.findOne({ email: req.body.email });
     if (!user) return res.status(400).json({ message: "user doesn't exist" });
     const validPass = await bcrypt.compare(req.body.password, user.password);
-    if (!validPass) return res.status(400).json({message: 'Invalid password'});
-    if (!req.body.hardware_key) return res.status(400).json({message: 'need hardware key'});
+    if (!validPass) return res.status(400).json({ message: 'Invalid password' });
+    if (!req.body.hardware_key) return res.status(400).json({ message: 'need hardware key' });
 
     // searching for unassigned keys
     var key = await Keys.findOneAndDelete({ key: req.body.key });
@@ -80,27 +80,27 @@ router.post('/activate', async (req, res) => {
 
     // if the unassigned key doesn't exist, check the user (maybe it's an assigned key)
     if (!key) {
-		for (var i in user.purchased_keys) {
+        for (var i in user.purchased_keys) {
             if (req.body.key == user.purchased_keys[i].key) {
                 key = user.purchased_keys[i];
                 if (user.purchased_keys[i].hardware_ids.indexOf(hardwareId) > -1) activatedBefore = true;
             }
-		}
+        }
         if (!key) {
-            return res.status(400).json({ error: "key doesn't exist"});
+            return res.status(400).json({ error: "key doesn't exist" });
         }
     } else {
         // key = unassigned: user bought the key
         sale = true;
     }
     let admin = await Admin.findById(key.product_owner);
-    if(!admin) return res.status(400).json({ error: "product owner doesn't exist" });
+    if (!admin) return res.status(400).json({ error: "product owner doesn't exist" });
     const reachedLimit = (key.activation_limit - key.hardware_ids.length) <= 0;
     if (reachedLimit && !activatedBefore) {
-        return res.status(400).json({ message:  'reached activation limit'});
+        return res.status(400).json({ message: 'reached activation limit' });
     }
 
-	try {
+    try {
 
         let month = monthNames[date.getMonth()]
         let product = await admin.products.id(key.product_id);
@@ -133,15 +133,15 @@ router.post('/activate', async (req, res) => {
 
         await admin.save();
         await user.save();
-		res.json({
-            message: activatedBefore?"aready activated":"success",
+        res.json({
+            message: activatedBefore ? "aready activated" : "success",
             _id: user._id,
             remaining_activation: (key.activation_limit - key.hardware_ids.length)
         });
-	} catch (err) {
-		res.json({ message: err.toString() });
+    } catch (err) {
+        res.json({ message: err.toString() });
         console.log(err);
-	}
+    }
 });
 
 
