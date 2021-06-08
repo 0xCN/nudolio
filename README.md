@@ -1,20 +1,15 @@
 # nudolio
 open source software license key manager built with MERN & redux with a web api to build on
 
-<img src="https://img.shields.io/badge/nudolio-1.0-green">
-<img src="https://img.shields.io/badge/express.js-4.7-lightblue"/>
-<img src="https://img.shields.io/badge/react.js-17.0-blue"/>
-<img src="https://img.shields.io/badge/node.js-14.17-darkgreen"/>
-<img src="https://img.shields.io/badge/redux-4.0-red"/>
+<img src="https://img.shields.io/badge/nudolio-1.0-green">  <img src="https://img.shields.io/badge/express.js-4.7-lightblue"/>  <img src="https://img.shields.io/badge/react.js-17.0-blue"/>  <img src="https://img.shields.io/badge/node.js-14.17-darkgreen"/>  <img src="https://img.shields.io/badge/redux-4.0-red"/>
 <br />
 <br />
-<img src="UI-images/Dashboard.png" width="500px">
-<img src="UI-images/API.png" width="500px">
+<img src="UI-images/Dashboard.png" width="400px"> <img src="UI-images/API.png" width="400px">
 <br />
 
 > Theme Used: [MatX](https://github.com/uilibrary/matx-react)
 
-### [Click Here for Demo](https://nudolio.herokuapp.com/)
+#### [Click Here for Demo](https://nudolio.herokuapp.com/)
 
 ## Features
 - Public API (Express)
